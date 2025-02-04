@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shelf Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        
+        h1 {
+            color: #333;
+        }
+
+        .upload-container {
+            position: relative;
+            border: 2px dashed #007bff;
+            border-radius: 10px;
+            width: 300px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-color: white;
+        }
+
+        .upload-container:hover {
+            background-color: #e0e0e0;
+        }
+
+        .upload-icon {
+            font-size: 50px;
+            color: #007bff;
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        .upload-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .upload-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 15px;
+            font-size: 18px;
+            color: #555;
+        }
+
+        .output-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 20px;
+        }
+
+        .image-box {
+            text-align: center;
+        }
+
+        img {
+            width: 250px;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .caption {
+            font-size: 16px;
+            color: #333;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Shelf Detection</h1>
+
+    <label for="imageInput" class="upload-container">
+        <span class="upload-icon">📤</span>
+    </label>
+    <input type="file" id="imageInput">
+
+    <button class="upload-btn" onclick="uploadImage()">Upload</button>
+
+    <div id="loadingText" class="loading">Processing...</div>
+
+    <div class="output-container">
+        <div class="image-box">
+            <h3>Original Image</h3>
+            <img id="inputImage" style="display:none;">
+        </div>
+        <div class="image-box">
+            <h3>Processed Image</h3>
+            <img id="outputImage" style="display:none;">
+        </div>
+    </div>
+
+    <h3 id="caption" class="caption"></h3>
+
+    <script>
+        function uploadImage() {
+            let fileInput = document.getElementById('imageInput');
+            let file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select an image first!");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append('image', file);
+
+            // Show the selected image
+            let inputImage = document.getElementById('inputImage');
+            inputImage.src = URL.createObjectURL(file);
+            inputImage.style.display = "block";
+
+            // Show processing text
+            document.getElementById('loadingText').style.display = "block";
+            document.getElementById('outputImage').style.display = "none";
+            document.getElementById('caption').innerText = "";
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loadingText').style.display = "none";
+
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    document.getElementById('outputImage').src = data.processed_image;
+                    document.getElementById('outputImage').style.display = "block";
+                    document.getElementById('caption').innerText = "Caption: " + data.caption;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loadingText').style.display = "none";
+            });
+        }
+    </script>
+</body>
+</html>
