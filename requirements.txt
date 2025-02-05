@@ -1,2 +1,13 @@
 ultralytics==8.0.92
 scikit-learn==1.2.2
+unittest
+flask
+torch
+torchvision
+numpy
+pandas
+matplotlib
+seaborn
+Pillow
+opencv-python
+
